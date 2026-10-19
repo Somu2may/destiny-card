@@ -35,6 +35,15 @@
     'Peacefully, at a ripe old age, still bullish'
   ];
 
+  var ROMAN = ['', 'I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV','XVI','XVII','XVIII','XIX','XX','XXI'];
+  var MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var ORDINALS = ['', 'first','second','third','fourth','fifth','sixth','seventh','eighth','ninth','tenth','eleventh','twelfth','thirteenth','fourteenth','fifteenth','sixteenth','seventeenth','eighteenth','nineteenth','twentieth','twenty-first','twenty-second','twenty-third','twenty-fourth','twenty-fifth','twenty-sixth','twenty-seventh','twenty-eighth','twenty-ninth','thirtieth','thirty-first'];
+  var NICK = { Aries:'the ram', Taurus:'the bull', Gemini:'the twins', Cancer:'the crab', Leo:'the lion', Virgo:'the maiden', Libra:'the scales', Scorpio:'the scorpion', Sagittarius:'the archer', Capricorn:'the sea-goat', Aquarius:'the water bearer', Pisces:'the fishes' };
+  var ONES = ['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'];
+  var TENS = ['', '', 'twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety'];
+  function words(n){ if (n < 20) return ONES[n]; if (n < 100) return TENS[Math.floor(n / 10)] + (n % 10 ? '-' + ONES[n % 10] : ''); return String(n); }
+  function cap(t){ return t.charAt(0).toUpperCase() + t.slice(1); }
+
   // ---------- deterministic randomness ----------
   function hash(str){
     var h1 = 0xdeadbeef, h2 = 0x41c6ce57;
@@ -93,11 +102,34 @@
   }
   function initialsAvatar(name){
     var parts = name.trim().split(/\s+/);
-    var ini = ((parts[0] || '?')[0] + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
-    var s = '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">' +
-      '<rect width="400" height="400" fill="#1b2338"/><circle cx="200" cy="200" r="150" fill="none" stroke="#c9a96a" stroke-opacity=".35"/>' +
-      '<text x="200" y="200" dy=".35em" text-anchor="middle" font-family="Georgia, serif" font-size="150" fill="#e0c58f">' + ini.replace(/[<>&]/g, '') + '</text></svg>';
+    var ini = ((parts[0] || '?')[0] + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase().replace(/[<>&"']/g, '');
+    var s = '<svg xmlns="http://www.w3.org/2000/svg" width="628" height="848" viewBox="0 0 314 424">' +
+      '<rect width="314" height="424" fill="#e8dcc0"/>' +
+      '<rect x="16" y="16" width="282" height="392" fill="none" stroke="#6e1f1f" stroke-opacity=".5"/>' +
+      '<circle cx="157" cy="212" r="104" fill="none" stroke="#6e1f1f" stroke-opacity=".6"/>' +
+      '<circle cx="157" cy="212" r="96" fill="none" stroke="#6e1f1f" stroke-opacity=".3" stroke-dasharray="2 6"/>' +
+      '<path d="M157 70l4 10 10 4-10 4-4 10-4-10-10-4 10-4z M157 326l4 10 10 4-10 4-4 10-4-10-10-4 10-4z" fill="#6e1f1f"/>' +
+      '<text x="157" y="212" dy=".35em" text-anchor="middle" font-family="Georgia, serif" font-size="96" fill="#1c1814">' + ini + '</text></svg>';
     return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s);
+  }
+  // crop to the 3:4 tarot window and give it an aged print look (html2canvas ignores CSS filter and object-fit)
+  function agePhoto(src){
+    return new Promise(function(res){
+      var im = new Image();
+      im.onload = function(){
+        try {
+          var W = 628, H = 848, c = document.createElement('canvas'); c.width = W; c.height = H;
+          var x = c.getContext('2d');
+          var r = Math.max(W / im.naturalWidth, H / im.naturalHeight);
+          var w = im.naturalWidth * r, h = im.naturalHeight * r;
+          x.filter = 'sepia(.35) contrast(1.05) saturate(.8)';
+          x.drawImage(im, (W - w) / 2, (H - h) / 2, w, h);
+          res(c.toDataURL('image/jpeg', 0.9));
+        } catch (e) { res(src); }
+      };
+      im.onerror = function(){ res(src); };
+      im.src = src;
+    });
   }
   function getAvatar(handle, name){
     return withTimeout(fetch('https://api.fxtwitter.com/' + encodeURIComponent(handle)), 8000)
@@ -108,6 +140,7 @@
         return fetchImage(u.replace('_normal.', '_400x400.'));
       })
       .catch(function(){ return fetchImage('https://unavatar.io/x/' + encodeURIComponent(handle) + '?fallback=false'); })
+      .then(agePhoto)
       .catch(function(){ return initialsAvatar(name); });
   }
 
@@ -118,6 +151,13 @@
     $('scaler').style.transform = 'scale(' + (stage.clientWidth / 1600) + ')';
   }
   window.addEventListener('resize', fit);
+  function fitTitle(){
+    var t = $('c-title'); t.className = 'title'; t.style.fontSize = '';
+    if (t.scrollWidth <= t.clientWidth + 1) return;
+    t.className = 'title two';
+    var fs = 74;
+    while (fs > 44 && t.scrollHeight > fs * 2.1) { fs -= 4; t.style.fontSize = fs + 'px'; }
+  }
 
   form.addEventListener('submit', function(e){
     e.preventDefault();
@@ -151,22 +191,30 @@
 
     current = { name: name, handle: handle, age: age, deathYear: y + deathAge, deathAge: deathAge, marriageAge: marriageAge, love: love, kids: kids, ending: ending, sun: sunSign(m, d), moon: moon.sign };
 
+    var tarotNum = ROMAN[pick(r, 1, 21)];
+    var sunS = sunSign(m, d);
+    $('c-num').textContent = tarotNum;
     $('c-name').textContent = name;
-    $('c-name').className = name.length > 16 ? 'long' : '';
+    $('c-tname').textContent = name;
+    $('c-tname').style.fontSize = name.length > 26 ? '22px' : name.length > 18 ? '26px' : '30px';
     $('c-handle').textContent = '@' + handle;
-    var dateStr = new Date(y, m - 1, d).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-    $('c-meta').textContent = 'Born ' + dateStr + ', ' + place;
+    $('c-born').textContent = 'Born the ' + ORDINALS[d] + ' of ' + MONTHS[m - 1] + ', ' + y + ' \u00b7 ' + place;
     $('c-age').textContent = age;
-    $('c-sun').textContent = current.sun;
+    $('c-sun').textContent = sunS;
+    $('c-sunsub').textContent = NICK[sunS];
     $('c-moon').textContent = moon.sign;
-    $('c-moonnote').textContent = approx ? '(approx)' : '';
+    $('c-moonnote').textContent = approx ? 'approximate' : 'by birth time';
     $('c-moonimg').src = ZODIAC.svg(moon.sign);
     $('c-mage').textContent = marriageAge;
+    $('c-myear').textContent = 'in the year ' + (y + marriageAge);
     $('c-mtype').textContent = love ? 'Love' : 'Arranged';
-    $('c-kids').textContent = kids === 0 ? 'None' : kids;
+    $('c-mtypesub').textContent = love ? 'a love match' : 'an arranged match';
+    $('c-kids').textContent = cap(words(kids)).replace('Zero', 'None');
+    $('c-kidssub').textContent = kids === 0 ? 'a quiet house' : kids === 1 ? 'a little one' : 'little ones';
     $('c-dyear').textContent = y + deathAge;
-    $('c-dage').textContent = 'at age ' + deathAge;
-    $('c-how').textContent = ending;
+    $('c-dage').textContent = 'at age ' + words(deathAge);
+    $('c-how').textContent = '\u201c' + ending + '.\u201d';
+    $('c-how').className = 'q' + (ending.length > 46 ? ' long' : '');
 
     var pfp = $('c-pfp');
     pfp.src = initialsAvatar(name);
@@ -176,7 +224,7 @@
     }).then(function(){
       $('intro').hidden = true;
       $('result').hidden = false;
-      fit();
+      fit(); fitTitle();
       window.scrollTo({ top: 0, behavior: 'smooth' });
       btn.disabled = false; btn.textContent = 'Reveal my card';
       document.body.setAttribute('data-ready', '1');
@@ -192,13 +240,14 @@
   });
 
   function renderCanvas(){
-    return document.fonts.ready.then(function(){
+    var faces = ['300 74px Fraunces', '400 74px Fraunces', 'italic 400 74px Fraunces', '500 40px Fraunces', '20px "IM Fell English SC"', 'italic 20px "IM Fell English"'];
+    return Promise.all(faces.map(function(f){ return document.fonts.load(f); })).then(function(){ return document.fonts.ready; }).then(function(){
       return html2canvas($('card'), {
         width: 1600, height: 900, scale: 1, useCORS: true, backgroundColor: '#0f1422',
         windowWidth: 1600, windowHeight: 900, scrollX: 0, scrollY: 0, logging: false,
         onclone: function(doc){
           var st = doc.getElementById('stage');
-          st.style.width = '1600px'; st.style.height = '900px'; st.style.maxWidth = 'none'; st.style.borderRadius = '0';
+          st.style.width = '1600px'; st.style.height = '900px'; st.style.maxWidth = 'none'; st.style.boxShadow = 'none';
           doc.getElementById('scaler').style.transform = 'none';
         }
       });
@@ -206,23 +255,27 @@
   }
   window.__renderCard = function(){ return renderCanvas().then(function(c){ return c.toDataURL('image/png'); }); };
 
-  $('dl').addEventListener('click', function(){
-    var b = this; b.disabled = true; b.textContent = 'Preparing...';
+  function onDownload(){
+    var b = this, label = b.textContent; b.disabled = true; b.textContent = 'Preparing...';
     renderCanvas().then(function(c){
       var a = document.createElement('a');
       a.download = 'destiny-card-' + (current ? current.handle : 'me') + '.png';
       a.href = c.toDataURL('image/png');
       document.body.appendChild(a); a.click(); a.remove();
     }).catch(function(){ alert('Could not create the image. Please try again.'); })
-      .finally(function(){ b.disabled = false; b.textContent = 'Download'; });
-  });
+      .finally(function(){ b.disabled = false; b.textContent = label; });
+  }
+  $('dl').addEventListener('click', onDownload);
+  $('dl2').addEventListener('click', onDownload);
 
-  $('share').addEventListener('click', function(){
+  function onShare(){
     if (!current) return;
     var text = 'My Destiny Card: ' + current.sun + ' sun, ' + current.moon + ' moon. Married at ' + current.marriageAge +
       ' (' + (current.love ? 'love' : 'arranged') + '), ' + (current.kids === 0 ? 'no kids' : current.kids + (current.kids === 1 ? ' kid' : ' kids')) +
       ', and the end comes in ' + current.deathYear + ': ' + current.ending.charAt(0).toLowerCase() + current.ending.slice(1) + '.\n\nFor fun only. Get yours:';
     var url = 'https://somu2may.github.io/destiny-card/';
     window.open('https://x.com/intent/post?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(url), '_blank', 'noopener');
-  });
+  }
+  $('share').addEventListener('click', onShare);
+  $('share2').addEventListener('click', onShare);
 })();

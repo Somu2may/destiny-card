@@ -17,14 +17,14 @@
   function svg(sign){
     var g = GLYPHS[sign];
     var s = '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">'+
-      '<circle cx="100" cy="100" r="94" fill="none" stroke="#c9a96a" stroke-width="1.6" opacity=".55"/>'+
-      '<circle cx="100" cy="100" r="86" fill="none" stroke="#c9a96a" stroke-width=".8" opacity=".35" stroke-dasharray="1.5 5"/>'+
+      '<circle cx="100" cy="100" r="94" fill="none" stroke="#6e1f1f" stroke-width="2.4" opacity=".75"/>'+
+      '<circle cx="100" cy="100" r="86" fill="none" stroke="#6e1f1f" stroke-width="1.2" opacity=".5" stroke-dasharray="1.5 5"/>'+
       /* crescent */
-      '<path d="M78 22A80 80 0 1 0 78 178A66 66 0 1 1 78 22Z" fill="#c9a96a" opacity=".16" stroke="#c9a96a" stroke-width="1.2"/>'+
+      '<path d="M78 22A80 80 0 1 0 78 178A66 66 0 1 1 78 22Z" fill="#6e1f1f" fill-opacity=".14" stroke="#6e1f1f" stroke-width="1.6"/>'+
       /* small stars */
-      '<path d="M156 40l2 5.5 5.5 2-5.5 2-2 5.5-2-5.5-5.5-2 5.5-2z" fill="#efe6d2" opacity=".85"/>'+
-      '<circle cx="168" cy="150" r="2" fill="#efe6d2" opacity=".7"/><circle cx="140" cy="172" r="1.4" fill="#efe6d2" opacity=".6"/>'+
-      '<g transform="translate(46 42) scale(1.16)"><path d="'+g+'" fill="none" stroke="#e0c58f" stroke-width="5.2" stroke-linecap="round" stroke-linejoin="round"/></g>'+
+      '<path d="M156 40l2 5.5 5.5 2-5.5 2-2 5.5-2-5.5-5.5-2 5.5-2z" fill="#6e1f1f"/>'+
+      '<circle cx="168" cy="150" r="2" fill="#6e1f1f" opacity=".7"/><circle cx="140" cy="172" r="1.4" fill="#6e1f1f" opacity=".6"/>'+
+      '<g transform="translate(46 42) scale(1.16)"><path d="'+g+'" fill="none" stroke="#1c1814" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/></g>'+
       '</svg>';
     return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s);
   }
