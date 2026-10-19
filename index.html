@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Destiny Card · Read your stars, for fun</title>
+<meta name="description" content="Enter your name, birth date, birth place and X handle. Get a shareable card with your age, star sign, moon sign and a few playful predictions.">
+<meta name="theme-color" content="#0e1320">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://somu2may.github.io/destiny-card/">
+<link rel="canonical" href="https://somu2may.github.io/destiny-card/">
+<meta property="og:title" content="Destiny Card">
+<meta property="og:description" content="Your age, star sign, moon sign and a few playful predictions on one card. For fun only.">
+<meta property="og:image" content="https://somu2may.github.io/destiny-card/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Destiny Card">
+<meta name="twitter:description" content="Your age, star sign, moon sign and a few playful predictions on one card. For fun only.">
+<meta name="twitter:image" content="https://somu2may.github.io/destiny-card/og.png">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Playfair+Display:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="sky" aria-hidden="true"></div>
+<header class="top">
+  <a class="brand" href="./"><img src="favicon.svg" alt="" width="28" height="28"><span>Destiny Card</span></a>
+  <span class="tag">For fun only</span>
+</header>
+
+<main>
+  <section class="intro" id="intro">
+    <p class="eyebrow">A small reading from the stars</p>
+    <h1>What do the stars<br><em>say about you?</em></h1>
+    <p class="lede">Tell us when and where you were born. We will work out your star sign and moon sign, then add a few playful guesses about the rest of your story.</p>
+
+    <form id="form" class="panel" novalidate autocomplete="on">
+      <div class="field full">
+        <label for="name">Full name</label>
+        <input id="name" name="name" type="text" placeholder="Aarav Sharma" required maxlength="60">
+      </div>
+      <div class="field">
+        <label for="dob">Date of birth</label>
+        <input id="dob" name="dob" type="date" required>
+      </div>
+      <div class="field">
+        <label for="tob">Birth time <span class="opt">optional</span></label>
+        <input id="tob" name="tob" type="time">
+      </div>
+      <div class="field">
+        <label for="place">Birth place</label>
+        <input id="place" name="place" type="text" placeholder="Mumbai" required maxlength="50">
+      </div>
+      <div class="field">
+        <label for="handle">X handle</label>
+        <div class="at"><span>@</span><input id="handle" name="handle" type="text" placeholder="yourhandle" required maxlength="16" autocapitalize="off" spellcheck="false"></div>
+      </div>
+      <p class="error" id="error" role="alert"></p>
+      <button class="btn primary full" type="submit" id="go">Reveal my card</button>
+      <p class="note">Birth time is used for the moon sign. Without it we assume 12:00 noon, India time.</p>
+    </form>
+  </section>
+
+  <section class="result" id="result" hidden>
+    <div class="stage" id="stage">
+      <div class="scaler" id="scaler">
+        <div class="card" id="card">
+          <div class="c-left">
+            <div class="pfp-ring"><img id="c-pfp" alt="" width="300" height="300"></div>
+            <h2 id="c-name">Name</h2>
+            <p class="c-handle" id="c-handle">@handle</p>
+            <p class="c-meta" id="c-meta">Born in Mumbai</p>
+            <div class="c-actions" data-html2canvas-ignore="true">
+              <button class="cbtn primary" id="dl" type="button">Download</button>
+              <button class="cbtn" id="share" type="button">Flex on X</button>
+            </div>
+          </div>
+          <div class="c-right">
+            <div class="c-head">
+              <span class="c-kicker">Destiny Card</span>
+              <span class="c-line"></span>
+            </div>
+            <div class="grid">
+              <div class="cell"><span class="k">Age</span><span class="v" id="c-age">0</span></div>
+              <div class="cell"><span class="k">Star sign</span><span class="v" id="c-sun">Leo</span></div>
+              <div class="cell moon"><img id="c-moonimg" alt="" width="96" height="96"><div><span class="k">Moon sign</span><span class="v" id="c-moon">Leo</span><span class="s" id="c-moonnote"></span></div></div>
+              <div class="cell"><span class="k">Marriage at</span><span class="v" id="c-mage">27</span></div>
+              <div class="cell"><span class="k">Marriage type</span><span class="v" id="c-mtype">Love</span></div>
+              <div class="cell"><span class="k">Kids</span><span class="v" id="c-kids">2</span></div>
+              <div class="cell"><span class="k">Year of death</span><span class="v" id="c-dyear">2090</span><span class="s" id="c-dage"></span></div>
+              <div class="cell wide"><span class="k">How it ends</span><span class="v small" id="c-how">Peacefully</span></div>
+            </div>
+            <div class="c-foot">
+              <span>For fun only. Not real predictions.</span>
+              <span class="credit">Credit: DexBlocker</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="hint">Tap Download on the card to save it full size.</p>
+    <div class="actions">
+      <button class="btn ghost" id="again" type="button">Try again</button>
+    </div>
+    <p class="note center">For fun only. Not real predictions. Age and star sign are real, the rest is a playful guess.</p>
+  </section>
+</main>
+
+<footer class="bottom">
+  <p>For fun only. Not real predictions. Nothing you enter is stored.</p>
+  <p class="credit-line">Credit: DexBlocker</p>
+</footer>
+
+<script src="vendor/astronomy.browser.min.js"></script>
+<script src="vendor/html2canvas.min.js"></script>
+<script src="zodiac.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
