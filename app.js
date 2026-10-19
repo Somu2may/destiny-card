@@ -269,16 +269,44 @@
   $('dl2').addEventListener('click', onDownload);
 
   var SITE_URL = 'https://somu2may.github.io/destiny-card/';
+  // Count characters the way X does: links = 23, emoji = 2, CJK etc. = 2, Latin = 1
+  function xLength(t){
+    var n = 0;
+    t = t.replace(/https?:\/\/\S+/g, function(){ n += 23; return ''; });
+    var segs = (window.Intl && Intl.Segmenter) ? Array.from(new Intl.Segmenter('en', { granularity: 'grapheme' }).segment(t), function(x){ return x.segment; }) : Array.from(t);
+    segs.forEach(function(g){
+      if (/\p{Extended_Pictographic}/u.test(g)) { n += 2; return; }
+      Array.from(g).forEach(function(ch){
+        var cp = ch.codePointAt(0);
+        var light = (cp <= 0x10FF) || (cp >= 0x2000 && cp <= 0x200D) || (cp >= 0x2010 && cp <= 0x201F) || (cp >= 0x2032 && cp <= 0x2037);
+        n += light ? 1 : 2;
+      });
+    });
+    return n;
+  }
+  window.__xLength = xLength;
+  window.__shareTextFor = function(c){ return shareText(c); };
   function shareText(c){
-    var head = 'My Destiny Card: ' + c.sun + ' sun, ' + c.moon + ' moon. Married at ' + c.marriageAge +
-      ' (' + (c.love ? 'love' : 'arranged') + '), ' + (c.kids === 0 ? 'no kids' : c.kids + (c.kids === 1 ? ' kid' : ' kids'));
-    var tail = '\n\nThanks @dexblocker for this funny app\n' + SITE_URL;
-    var full = head + ', and the end comes in ' + c.deathYear + ': ' + c.ending.charAt(0).toLowerCase() + c.ending.slice(1) + '. For fun only.' + tail;
-    // X counts any link as 23 characters
-    var xlen = function(t){ return t.length - SITE_URL.length + 23; };
-    if (xlen(full) <= 280) return full;
-    var short = head + '. Departing in ' + c.deathYear + '. For fun only.' + tail;
-    return short;
+    var showKids = true, showAge = true, t;
+    function build(){
+      return [
+        '🔮 Just got my Destiny Card',
+        '',
+        '☀️ ' + c.sun + ' | 🌙 ' + c.moon + (showAge ? ' | Age ' + c.age : ''),
+        '💍 Marriage at ' + c.marriageAge + ' (' + (c.love ? 'Love' : 'Arranged') + ')'
+      ].concat(showKids ? ['👶 Kids: ' + c.kids] : []).concat([
+        '⚰️ Exit year: ' + c.deathYear,
+        '',
+        'Thanks @dexblocker for this funny app',
+        'Check urs 👇',
+        SITE_URL
+      ]).join('\n');
+    }
+    t = build();
+    if (xLength(t) > 280) { showKids = false; t = build(); }
+    if (xLength(t) > 280) { showAge = false; t = build(); }
+    if (xLength(t) > 280) t = ['🔮 Just got my Destiny Card', '', 'Thanks @dexblocker for this funny app', 'Check urs 👇', SITE_URL].join('\n');
+    return t;
   }
   window.__shareText = function(){ return current ? shareText(current) : ''; };
   window.__shareURL = function(){ return current ? 'https://x.com/intent/post?text=' + encodeURIComponent(shareText(current)) : ''; };
