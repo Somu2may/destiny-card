@@ -268,13 +268,23 @@
   $('dl').addEventListener('click', onDownload);
   $('dl2').addEventListener('click', onDownload);
 
+  var SITE_URL = 'https://somu2may.github.io/destiny-card/';
+  function shareText(c){
+    var head = 'My Destiny Card: ' + c.sun + ' sun, ' + c.moon + ' moon. Married at ' + c.marriageAge +
+      ' (' + (c.love ? 'love' : 'arranged') + '), ' + (c.kids === 0 ? 'no kids' : c.kids + (c.kids === 1 ? ' kid' : ' kids'));
+    var tail = '\n\nThanks @dexblocker for this funny app\n' + SITE_URL;
+    var full = head + ', and the end comes in ' + c.deathYear + ': ' + c.ending.charAt(0).toLowerCase() + c.ending.slice(1) + '. For fun only.' + tail;
+    // X counts any link as 23 characters
+    var xlen = function(t){ return t.length - SITE_URL.length + 23; };
+    if (xlen(full) <= 280) return full;
+    var short = head + '. Departing in ' + c.deathYear + '. For fun only.' + tail;
+    return short;
+  }
+  window.__shareText = function(){ return current ? shareText(current) : ''; };
+  window.__shareURL = function(){ return current ? 'https://x.com/intent/post?text=' + encodeURIComponent(shareText(current)) : ''; };
   function onShare(){
     if (!current) return;
-    var text = 'My Destiny Card: ' + current.sun + ' sun, ' + current.moon + ' moon. Married at ' + current.marriageAge +
-      ' (' + (current.love ? 'love' : 'arranged') + '), ' + (current.kids === 0 ? 'no kids' : current.kids + (current.kids === 1 ? ' kid' : ' kids')) +
-      ', and the end comes in ' + current.deathYear + ': ' + current.ending.charAt(0).toLowerCase() + current.ending.slice(1) + '.\n\nFor fun only. Get yours:';
-    var url = 'https://somu2may.github.io/destiny-card/';
-    window.open('https://x.com/intent/post?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(url), '_blank', 'noopener');
+    window.open(window.__shareURL(), '_blank', 'noopener');
   }
   $('share').addEventListener('click', onShare);
   $('share2').addEventListener('click', onShare);
